@@ -6,8 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+if (!OPENAI_API_KEY) {
+  console.error("⚠️ ERRORE: Variabile OPENAI_API_KEY non definita!");
+  process.exit(1);  // interrompe il server se la chiave non è presente
+}
+
 app.post('/api/chat', async (req, res) => {
-  const { prompt, apiKey } = req.body;
+  const { prompt } = req.body;
 
   try {
     const response = await axios.post(
@@ -22,7 +29,7 @@ app.post('/api/chat', async (req, res) => {
       },
       {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
           'Content-Type': 'application/json'
         }
       }
