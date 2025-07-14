@@ -12,6 +12,8 @@ if (!OPENAI_API_KEY) {
   console.error("⚠️ ERRORE: Variabile OPENAI_API_KEY non definita!");
   process.exit(1);  // interrompe il server se la chiave non è presente
 }
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/chat', async (req, res) => {
   const { prompt } = req.body;
