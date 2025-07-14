@@ -1,19 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 if (!OPENAI_API_KEY) {
-  console.error("⚠️ ERRORE: Variabile OPENAI_API_KEY non definita!");
-  process.exit(1);  // interrompe il server se la chiave non è presente
+  console.error("❌ Nessuna chiave OPENAI_API_KEY");
+  process.exit(1);
 }
-const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/chat', async (req, res) => {
   const { prompt } = req.body;
@@ -39,7 +39,8 @@ app.post('/api/chat', async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json({ error: error.message });
+    console.error("Errore OpenAI:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({ error: error.response?.data || error.message });
   }
 });
 
@@ -47,3 +48,4 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`✅ Server attivo su porta ${port}`);
 });
+
