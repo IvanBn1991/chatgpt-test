@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prompt ChatGPT con API - Usando backend su Render</title>
+  <style>
+    textarea, #response {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px;
+    }
+    #response {
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Genera risposta con ChatGPT</h2>
+
+  <label>Testo 1:</label>
+  <textarea id="input1" rows="4" placeholder="Scrivi il primo testo..."></textarea>
+
+  <label>Testo 2:</label>
+  <textarea id="input2" rows="4" placeholder="Scrivi il secondo testo..."></textarea>
+
+  <button onclick="inviaPrompt()">Invia a ChatGPT</button>
+
+  <h3>Risposta di ChatGPT:</h3>
+  <div id="response">--</div>
+
+  <script>
+    async function inviaPrompt() {
+      const input1 = document.getElementById("input1").value.trim();
+      const input2 = document.getElementById("input2").value.trim();
+      const responseDiv = document.getElementById("response");
+
+      if (!input1 || !input2) {
+        alert("Per favore, inserisci entrambi i testi.");
+        return;
+      }
+
+      const prompt = `Analizza e confronta i seguenti due testi:\n\nTesto 1:\n${input1}\n\nTesto 2:\n${input2}`;
+
+      responseDiv.innerText = "Attendi la risposta...";
+
+      try {
+        const res = await fetch("https://chatgpt-test-kphq.onrender.com/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt }) // nessuna apiKey passata dal client
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          responseDiv.innerText = `Errore: ${errorData.error || res.statusText}`;
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.choices && data.choices.length > 0) {
+          responseDiv.innerText = data.choices[0].message.content.trim();
+        } else {
+          responseDiv.innerText = "Nessuna risposta ricevuta.";
+        }
+      } catch (err) {
+        responseDiv.innerText = "Errore nella richiesta: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
