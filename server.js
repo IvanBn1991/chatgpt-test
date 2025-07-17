@@ -38,13 +38,17 @@ app.post('/api/chat', async (req, res) => {
     );
 
     res.json(response.data);
-  } catch (error) {
-    const status = error.response?.status || 500;
-    const message = status === 429
+  } } catch (error) {
+  const status = error.response?.status || 500;
+  const errorData = error.response?.data || error.message;
+  console.error("❌ ERRORE OpenAI:", errorData);
+  res.status(status).json({
+    error: status === 429
       ? "Hai superato il limite di richieste. Riprova tra poco."
-      : error.message;
-    res.status(status).json({ error: message });
-  }
+      : errorData,
+  });
+}
+
 
 });
 
